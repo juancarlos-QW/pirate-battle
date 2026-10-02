@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 
 test('main menu is keyboard navigable', async ({ page }) => {
   await page.goto('/');
+  // The app renders once the mock API is ready.
+  await expect(page.getByRole('heading', { name: 'Pirate Battle' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
