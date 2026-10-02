@@ -4,15 +4,13 @@ export type Screen =
   | { readonly name: 'menu' }
   | { readonly name: 'options' }
   | { readonly name: 'log'; readonly tab: LogTab }
-  | { readonly name: 'game'; readonly runId: number }
-  | { readonly name: 'result' };
+  | { readonly name: 'game'; readonly runId: number };
 
 export type NavigationAction =
   | { readonly type: 'menu' }
   | { readonly type: 'options' }
   | { readonly type: 'log'; readonly tab: LogTab }
-  | { readonly type: 'play' }
-  | { readonly type: 'result' };
+  | { readonly type: 'play' };
 
 export interface NavigationState {
   readonly screen: Screen;
@@ -37,7 +35,5 @@ export function navigationReducer(
       const runCounter = state.runCounter + 1;
       return { runCounter, screen: { name: 'game', runId: runCounter } };
     }
-    case 'result':
-      return { ...state, screen: { name: 'result' } };
   }
 }

@@ -11,18 +11,23 @@ const SCREEN_LABELS = {
   options: 'Options',
   log: "Captain's log",
   game: 'Battle',
-  result: 'Battle result',
 } as const;
 
 export function App() {
   const [{ screen }, navigate] = useReducer(navigationReducer, initialNavigation);
   const toMenu = () => navigate({ type: 'menu' });
+  const play = () => navigate({ type: 'play' });
+
+  // The arena is full screen and draws its own HUD, so it skips the menu scene layout.
+  if (screen.name === 'game') {
+    return <GameScreen key={screen.runId} onExit={toMenu} onPlayAgain={play} />;
+  }
 
   return (
     <ScreenLayout label={SCREEN_LABELS[screen.name]}>
       {screen.name === 'menu' && (
         <MainMenuScreen
-          onPlay={() => navigate({ type: 'play' })}
+          onPlay={play}
           onOptions={() => navigate({ type: 'options' })}
           onOpenLog={(tab) => navigate({ type: 'log', tab })}
         />
@@ -35,8 +40,6 @@ export function App() {
           onBack={toMenu}
         />
       )}
-      {screen.name === 'game' && <GameScreen key={screen.runId} onExit={toMenu} />}
-      {screen.name === 'result' && null}
     </ScreenLayout>
   );
 }
