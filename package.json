@@ -22,11 +22,13 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.3.0",
     "@tanstack/react-query": "^5.104.0",
     "axios": "^1.20.0",
     "pixi.js": "^8.22.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
