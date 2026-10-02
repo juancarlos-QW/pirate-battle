@@ -11,6 +11,7 @@ import {
 import { optionsStore, useOptions } from '../../storage/optionsStore.ts';
 import { Button, IconButton } from '../components/Button.tsx';
 import { Panel } from '../components/Panel.tsx';
+import { SoundToggle } from '../components/SoundToggle.tsx';
 import { useFocusOnMount } from '../hooks/useFocusOnMount.ts';
 
 interface OptionsScreenProps {
@@ -169,6 +170,7 @@ export function OptionsScreen({ onBack }: OptionsScreenProps) {
           <Button variant="secondary" size="sm" onClick={handleReset}>
             Reset defaults
           </Button>
+          <SoundToggle />
           <Button variant="secondary" size="sm" onClick={onBack}>
             Main menu
           </Button>
