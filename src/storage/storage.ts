@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   options: `${PREFIX}options:v1`,
   lastResult: `${PREFIX}last-result:v1`,
   player: `${PREFIX}player:v1`,
+  outbox: `${PREFIX}outbox:v1`,
+  audio: `${PREFIX}audio:v1`,
 } as const;
 
 function getStorage(): Storage | null {
