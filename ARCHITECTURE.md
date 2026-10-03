@@ -293,6 +293,8 @@ latency and with reproducible behaviour.
   tests on the simulation rather than by E2E tests driving the game.
 - Visual baselines were generated on Windows (`*-win32.png`); other operating systems render fonts
   slightly differently and need their own baselines (`npm run test:e2e:update`).
-- A performance profiling report is not included yet.
+- Performance was profiled on one desktop machine (see
+  [reports/PERFORMANCE.md](reports/PERFORMANCE.md)): 60 FPS with a 16.7 ms 95th percentile frame
+  time. Low-end phones were not profiled.
 - Portrait orientation on phones is playable (the camera follows the player) but landscape is the
   supported orientation.

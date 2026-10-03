@@ -32,22 +32,32 @@ Both are optional; the defaults are used when no `.env.local` exists (including 
 
 ## Commands
 
-| Command                   | Description                                          |
-| ------------------------- | ---------------------------------------------------- |
-| `npm run dev`             | Start the dev server                                 |
-| `npm run build`           | Type-check and build for production                  |
-| `npm run preview`         | Serve the production build                           |
-| `npm run lint`            | Run ESLint                                           |
-| `npm run typecheck`       | Run the TypeScript compiler without emitting         |
-| `npm test`                | Run unit tests (Vitest)                              |
-| `npm run test:e2e`        | Run Playwright E2E tests (desktop + mobile Chromium) |
-| `npm run test:e2e:update` | Update visual regression baselines                   |
-| `npm run test:e2e:report` | Open the last HTML report                            |
+| Command                   | Description                                              |
+| ------------------------- | -------------------------------------------------------- |
+| `npm run dev`             | Start the dev server                                     |
+| `npm run build`           | Type-check and build for production                      |
+| `npm run preview`         | Serve the production build                               |
+| `npm run lint`            | Run ESLint                                               |
+| `npm run typecheck`       | Run the TypeScript compiler without emitting             |
+| `npm test`                | Run unit tests (Vitest)                                  |
+| `npm run test:e2e`        | Run Playwright E2E tests (desktop + mobile Chromium)     |
+| `npm run test:e2e:update` | Update visual regression baselines                       |
+| `npm run test:e2e:report` | Open the last HTML report                                |
+| `npm run profile`         | Profile the production build (run `npm run build` first) |
 
 The E2E suite includes visual regression of the main menu, the arena and the result screen
 (`e2e/visual.spec.ts`). Its baselines were generated on Windows; on another operating system run
 `npm run test:e2e:update` once to create local baselines. The result screen test plays a real match
 with a fake clock, so the full suite takes a few minutes.
+
+## Reports
+
+- [reports/PERFORMANCE.md](reports/PERFORMANCE.md): frame rate, 95th percentile frame time,
+  entity counts over a three-minute match and memory after five match cycles, with the reference
+  hardware. Raw data in `reports/performance.json`.
+- [reports/playwright/index.html](reports/playwright/index.html): HTML report of the last full
+  Playwright run (open it locally, or run `npm run test:e2e:report` after your own run). Traces are
+  kept for failed tests.
 
 ## Controls
 

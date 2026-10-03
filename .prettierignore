@@ -3,3 +3,4 @@ public
 playwright-report
 test-results
 package-lock.json
+reports/playwright

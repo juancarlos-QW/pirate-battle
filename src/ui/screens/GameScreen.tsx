@@ -24,6 +24,13 @@ const RESULT_DELAY_MS = 900;
 
 const noopSubscribe = () => () => {};
 
+/**
+ * With `?debug` in the URL the running session is exposed as `window.__PIRATE_BATTLE__`, so
+ * profiling scripts can observe the simulation (entity counts). Never set otherwise.
+ */
+const DEBUG_KEY = '__PIRATE_BATTLE__';
+const debugEnabled = () => new URLSearchParams(window.location.search).has('debug');
+
 function initialHud(config: MatchConfig): HudState {
   return {
     phase: 'loading',
@@ -49,8 +56,12 @@ export function GameScreen({ onExit, onPlayAgain }: GameScreenProps) {
     if (!host) return undefined;
     const next = new GameSession(config);
     setSession(next);
+    if (debugEnabled()) Reflect.set(window, DEBUG_KEY, next);
     next.mount(host).catch((error: unknown) => console.error('Failed to start the arena', error));
-    return () => next.destroy();
+    return () => {
+      next.destroy();
+      if (Reflect.get(window, DEBUG_KEY) === next) Reflect.deleteProperty(window, DEBUG_KEY);
+    };
   }, [config]);
 
   const hud = useSyncExternalStore(
