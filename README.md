@@ -19,6 +19,17 @@ npx playwright install chromium
 cp .env.example .env.local   # optional
 ```
 
+Live demo: <https://pirate-battle-one.vercel.app>
+
+## Environment variables
+
+Both are optional; the defaults are used when no `.env.local` exists (including on Vercel).
+
+| Variable            | Default | Description                                                             |
+| ------------------- | ------- | ----------------------------------------------------------------------- |
+| `VITE_API_BASE_URL` | `/api`  | Base URL of the ranking and history API used by the Axios client        |
+| `VITE_ENABLE_MOCKS` | `true`  | Set to `false` to disable MSW (only useful if a real backend is served) |
+
 ## Commands
 
 | Command                   | Description                                          |
@@ -35,16 +46,20 @@ cp .env.example .env.local   # optional
 
 ## Controls
 
-| Action                 | Keyboard      | Touch                     |
-| ---------------------- | ------------- | ------------------------- |
-| Sail forward           | W / ↑         | ↑ button (left pad)       |
-| Turn left / right      | A / ← · D / → | ↶ / ↷ buttons (left pad)  |
-| Fire front cannon      | Space / K     | centre button (right pad) |
-| Left / right broadside | Q / J · E / L | side buttons (right pad)  |
-| Pause / resume         | P / Esc       | pause button (top right)  |
+| Action                 | Keyboard      | Touch                                     |
+| ---------------------- | ------------- | ----------------------------------------- |
+| Sail forward           | W / ↑         | Drag the joystick (left) in any direction |
+| Turn left / right      | A / ← · D / → | The ship turns toward the joystick        |
+| Fire front cannon      | Space / K     | Top button (right)                        |
+| Left / right broadside | Q / J · E / L | Bottom buttons (right)                    |
+| Pause / resume         | P / Esc       | Pause button (top right)                  |
 
-Touch buttons appear on devices with a coarse pointer and can be held at the same time. The match
-also pauses automatically when the tab is hidden.
+Touch controls appear on devices with a coarse pointer; steering and firing work at the same time
+with different fingers. The match also pauses automatically when the tab is hidden or the window
+loses focus, and resumes only when the player chooses Resume.
+
+**Mobile orientation:** landscape is the supported orientation. Portrait is playable (the camera
+follows the player) but shows less of the arena. Resizing or rotating never changes the match rules.
 
 ## Gameplay configuration
 
@@ -76,6 +91,10 @@ between matches played under the same rules.
 | `src/storage`             | Versioned localStorage (options, player id, pending results)              |
 | `src/ui`                  | React screens, HUD and components                                         |
 
+The design decisions (React/PixiJS integration, simulation loop, collisions, resource management,
+persistence, ranking and history, limitations and balancing) are described in
+[ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## API and network scenarios
 
 There is no real backend: [MSW](https://mswjs.io) intercepts requests to `VITE_API_BASE_URL` and
@@ -102,3 +121,36 @@ tab; `?mock=normal` resets it.
 | `error`   | Every request fails with 500                    |
 | `offline` | Every request fails with a network error        |
 | `empty`   | Fresh backend without seed data (not persisted) |
+
+### Resetting to the initial state
+
+1. Open `/?mock=normal` to go back to the default scenario.
+2. To also clear the mock database, the pending results and the saved options, run this in the
+   browser console and reload (or clear the site data in DevTools → Application → Storage):
+
+   ```js
+   Object.keys(localStorage)
+     .filter((key) => key.startsWith('pirate-battle:'))
+     .forEach((key) => localStorage.removeItem(key));
+   ```
+
+### Reproducing failures
+
+| What to see                              | Steps                                                                                                                                                                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Loading state                            | Open `/?mock=slow`, then Ranking or Match history                                                                                                                                                                        |
+| Error with retry                         | Open `/?mock=error` or `/?mock=offline`, then Ranking; the panel shows an error and a **Try again** button                                                                                                               |
+| Automatic retries                        | Open `/?mock=flaky` and browse the ranking pages                                                                                                                                                                         |
+| Empty lists                              | Open `/?mock=empty`, then Ranking and Match history                                                                                                                                                                      |
+| Server unavailable at the end of a match | Open `/?mock=offline`, play a match (set the session time to 60 s in Options to make it short); the result says it will be sent later. Open `/?mock=normal`: the match appears in Match history and in the ranking, once |
+| Pending result surviving a refresh       | After the previous step, reload with `/?mock=offline` before switching back; the result stays queued in `pirate-battle:outbox:v1`                                                                                        |
+
+## Credits and licenses
+
+- Game art (ships, tiles, effects, UI sprites, sprite sheets) and sound effects in `public/assets`
+  were provided with the challenge and are used unmodified; their license is the one defined by
+  the provider.
+- [Roboto](https://github.com/googlefonts/roboto-classic) font, bundled through
+  `@fontsource/roboto`, is licensed under the SIL Open Font License 1.1.
+- Libraries (React, PixiJS, TanStack Query, Axios, zod, MSW and the development tooling) are used
+  under their own open-source licenses (MIT, unless stated otherwise in each package).
