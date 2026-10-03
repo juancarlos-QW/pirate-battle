@@ -118,20 +118,30 @@ in a local outbox and delivered on the next app start or successful submission.
 Add `?mock=<scenario>` to the URL to simulate network conditions. The choice is remembered for the
 tab; `?mock=normal` resets it.
 
-| Scenario  | Behaviour                                       |
-| --------- | ----------------------------------------------- |
-| `normal`  | 250–500 ms latency (default)                    |
-| `slow`    | 3 s latency on every request                    |
-| `flaky`   | Half of the requests fail with 503              |
-| `error`   | Every request fails with 500                    |
-| `offline` | Every request fails with a network error        |
-| `empty`   | Fresh backend without seed data (not persisted) |
+| Scenario        | Behaviour                                                                    |
+| --------------- | ---------------------------------------------------------------------------- |
+| `normal`        | 250–500 ms latency (default)                                                 |
+| `slow`          | 3 s latency on every request                                                 |
+| `out-of-order`  | Odd requests take 1.5 s, even ones 150 ms, so later requests answer first    |
+| `flaky`         | Half of the requests fail with 503                                           |
+| `error`         | Every request fails with 500                                                 |
+| `rejected`      | Every request fails with 400                                                 |
+| `offline`       | Every request fails with a network error                                     |
+| `timeout`       | Requests answer after the client timeout (8 s)                               |
+| `ranking-error` | Only the ranking fails (500)                                                 |
+| `history-error` | Only the match history fails (500)                                           |
+| `save-timeout`  | A submitted match is stored, but the answer arrives after the client timeout |
+| `empty`         | Fresh backend without seed data (not persisted)                              |
+
+Latency in `out-of-order` is deterministic; in unit tests the handlers run without latency and with
+an injectable random function.
 
 ### Resetting to the initial state
 
-1. Open `/?mock=normal` to go back to the default scenario.
-2. To also clear the mock database, the pending results and the saved options, run this in the
-   browser console and reload (or clear the site data in DevTools → Application → Storage):
+1. Open `/?mock=reset`: the mock database goes back to the seeded data, pending results are
+   removed and the default scenario is selected. The parameter is removed from the URL afterwards.
+2. To also clear the saved options, the player id and the sound setting, run this in the browser
+   console and reload (or clear the site data in DevTools → Application → Storage):
 
    ```js
    Object.keys(localStorage)
@@ -149,6 +159,10 @@ tab; `?mock=normal` resets it.
 | Empty lists                              | Open `/?mock=empty`, then Ranking and Match history                                                                                                                                                                      |
 | Server unavailable at the end of a match | Open `/?mock=offline`, play a match (set the session time to 60 s in Options to make it short); the result says it will be sent later. Open `/?mock=normal`: the match appears in Match history and in the ranking, once |
 | Pending result surviving a refresh       | After the previous step, reload with `/?mock=offline` before switching back; the result stays queued in `pirate-battle:outbox:v1`                                                                                        |
+| Timeout after the match was stored       | Open `/?mock=save-timeout` and finish a match: the backend stores it but answers too late, so the result stays pending. Open `/?mock=normal`: the retry recovers the stored match and nothing is duplicated              |
+| Only one tab failing                     | Open `/?mock=ranking-error` (or `history-error`): the ranking shows an error while the history keeps working                                                                                                             |
+| Late responses                           | Open `/?mock=out-of-order`, page through the ranking quickly: an old page arriving late never replaces the page on screen                                                                                                |
+| Arena failing to load                    | Block `/assets/png/` in DevTools → Network → Request blocking and press Play: the dialog offers **Try again**                                                                                                            |
 
 ## Credits and licenses
 

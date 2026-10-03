@@ -12,7 +12,7 @@ import {
   type SubmitResponse,
 } from './schemas.ts';
 
-const REQUEST_TIMEOUT_MS = 8000;
+export const REQUEST_TIMEOUT_MS = 8000;
 
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',

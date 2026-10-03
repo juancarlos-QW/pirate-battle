@@ -155,7 +155,8 @@ Balancing decisions:
 - **Textures** are loaded once with `Assets.load` before the arena is shown and kept in the PixiJS
   cache, so the next match starts instantly. While loading, the screen shows a status message. If
   the renderer cannot start (WebGL unavailable or textures failing), the session enters the
-  `error` phase and an "Arena unavailable" dialog offers a way back to the menu.
+  `error` phase and an "Arena unavailable" dialog offers **Try again** (a new run, which loads
+  from scratch) or a way back to the menu.
 - **Scene graph.** Water (`TilingSprite`) and a world container with layers in drawing order:
   bounds shade, islands, projectiles, ships, effects, health bars.
 - **Sprite synchronisation.** Every frame the renderer reads the world and creates, updates or
@@ -252,7 +253,13 @@ block the game, the options or a running match.
 The same handlers ([`src/api/mocks/handlers.ts`](src/api/mocks/handlers.ts)) run in the browser
 (development, the published build and Playwright) and in Node (Vitest, with `msw/node`). The
 in-memory database is persisted to localStorage and seeded with deterministic rival captains
-(fixed seed). Network scenarios are selected with `?mock=<scenario>`; see the README.
+(fixed seed). Network scenarios are selected with `?mock=<scenario>` and remembered for the tab;
+see the README for the full list. They cover latency (fixed, variable and deterministic
+out-of-order), connection failures, timeouts, 4xx and 5xx responses, failures of a single endpoint
+and a timeout after a committed write (`save-timeout`: the match is stored but the response arrives
+after the 8 s client timeout, so the client retries later and the backend returns the existing
+record). `?mock=reset` restores the seeded database, clears pending results and selects the
+default scenario.
 
 Handlers accept an `instant` option and an injectable random function, so unit tests run without
 latency and with reproducible behaviour.
@@ -266,7 +273,9 @@ latency and with reproducible behaviour.
 - **Playwright** (production build, desktop 1280 × 720 and Pixel 7 landscape): keyboard
   navigation, modal dialogs, options validation and persistence, corrupted storage, match start,
   manual and automatic pause, repeated matches, ranking and history paging, empty and error
-  states, delivery of a pending result after reload. HTML report and traces on failure.
+  states, delivery of a pending result after reload, a failing ranking with a working history,
+  late responses not overwriting the current page, re-sending after a timeout without duplication,
+  scenario reset, and retrying a failed arena load. HTML report and traces on failure.
 - **Visual regression** (`e2e/visual.spec.ts`): main menu, the arena half a second into a match
   and the result screen, on both devices, against versioned baselines in
   `e2e/visual.spec.ts-snapshots`. The tests install Playwright's fake clock (Date, timers and
@@ -280,8 +289,6 @@ latency and with reproducible behaviour.
 - There is no real backend; the player identity is per browser, without login.
 - Scores are computed on the client. A real backend should validate that a score is plausible for
   the time played.
-- Network scenarios cover latency, failures and empty data, but not every case listed in the brief
-  (for example out-of-order responses and a timeout after a successful write).
 - E2E tests cover navigation, options, pause, ranking and history; combat rules are covered by unit
   tests on the simulation rather than by E2E tests driving the game.
 - Visual baselines were generated on Windows (`*-win32.png`); other operating systems render fonts

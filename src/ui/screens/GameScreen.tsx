@@ -123,11 +123,16 @@ export function GameScreen({ onExit, onPlayAgain }: GameScreenProps) {
         dismissible={false}
       >
         <p className="dialog__lead">
-          The battle could not start on this device. Your browser may not support WebGL.
+          The battle could not start. Check your connection and try again. If it keeps failing, your
+          browser may not support WebGL.
         </p>
-        <Button autoFocus onClick={onExit}>
-          Main menu
-        </Button>
+        <div className="dialog__actions">
+          {/* A new run remounts the screen, so loading starts from scratch. */}
+          <Button autoFocus onClick={onPlayAgain}>
+            Try again
+          </Button>
+          <Button onClick={onExit}>Main menu</Button>
+        </div>
       </Dialog>
     </main>
   );
