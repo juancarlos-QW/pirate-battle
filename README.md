@@ -44,6 +44,11 @@ Both are optional; the defaults are used when no `.env.local` exists (including 
 | `npm run test:e2e:update` | Update visual regression baselines                   |
 | `npm run test:e2e:report` | Open the last HTML report                            |
 
+The E2E suite includes visual regression of the main menu, the arena and the result screen
+(`e2e/visual.spec.ts`). Its baselines were generated on Windows; on another operating system run
+`npm run test:e2e:update` once to create local baselines. The result screen test plays a real match
+with a fake clock, so the full suite takes a few minutes.
+
 ## Controls
 
 | Action                 | Keyboard      | Touch                                     |

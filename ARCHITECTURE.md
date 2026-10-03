@@ -267,6 +267,13 @@ latency and with reproducible behaviour.
   navigation, modal dialogs, options validation and persistence, corrupted storage, match start,
   manual and automatic pause, repeated matches, ranking and history paging, empty and error
   states, delivery of a pending result after reload. HTML report and traces on failure.
+- **Visual regression** (`e2e/visual.spec.ts`): main menu, the arena half a second into a match
+  and the result screen, on both devices, against versioned baselines in
+  `e2e/visual.spec.ts-snapshots`. The tests install Playwright's fake clock (Date, timers and
+  `requestAnimationFrame`, which drives the PixiJS ticker) and pause it before Play, which fixes the
+  match seed; they then advance time by exact amounts, so the real simulation and renderer produce
+  the same frames on every run. The panel drop shadow, which the GPU compositor renders slightly
+  differently between runs, is disabled only while capturing (`e2e/visual.css`).
 
 ## 12. Limitations
 
@@ -277,6 +284,8 @@ latency and with reproducible behaviour.
   (for example out-of-order responses and a timeout after a successful write).
 - E2E tests cover navigation, options, pause, ranking and history; combat rules are covered by unit
   tests on the simulation rather than by E2E tests driving the game.
-- Visual regression baselines and a performance profiling report are not included yet.
+- Visual baselines were generated on Windows (`*-win32.png`); other operating systems render fonts
+  slightly differently and need their own baselines (`npm run test:e2e:update`).
+- A performance profiling report is not included yet.
 - Portrait orientation on phones is playable (the camera follows the player) but landscape is the
   supported orientation.

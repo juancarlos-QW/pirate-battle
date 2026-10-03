@@ -1,0 +1,6 @@
+/* Applied only while taking visual regression screenshots. */
+
+/* The panel drop shadow is rendered by the GPU compositor and varies slightly between runs. */
+.panel {
+  filter: none !important;
+}
