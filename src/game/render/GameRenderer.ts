@@ -86,7 +86,14 @@ export class GameRenderer {
       autoDensity: true,
       resolution: Math.min(window.devicePixelRatio || 1, 2),
     });
-    const textures = await loadGameTextures();
+    let textures: GameTextures;
+    try {
+      textures = await loadGameTextures();
+    } catch (error) {
+      // Release the WebGL context: a retry creates a new application.
+      app.destroy({ removeView: true });
+      throw error;
+    }
     app.canvas.setAttribute('aria-hidden', 'true');
     host.appendChild(app.canvas);
     return new GameRenderer(app, textures, world);
