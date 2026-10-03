@@ -40,6 +40,16 @@ test('pausing freezes the clock and resuming continues it', async ({ page }) => 
   await expect(page.getByTestId('hud-time')).not.toHaveText(frozen ?? '', { timeout: 3000 });
 });
 
+test('losing window focus pauses the match', async ({ page }) => {
+  await startMatch(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  const dialog = page.getByRole('dialog', { name: 'Paused' });
+  await expect(dialog).toBeVisible();
+  const frozen = await page.getByTestId('hud-time').textContent();
+  await page.waitForTimeout(1500);
+  await expect(page.getByTestId('hud-time')).toHaveText(frozen ?? '');
+});
+
 test('the pause menu returns to the main menu', async ({ page }) => {
   await startMatch(page);
   await page.getByRole('button', { name: 'Pause' }).click();

@@ -22,16 +22,22 @@ const HEALTH_CHANNEL = { x: 47, y: 25, w: 225, h: 27 } as const;
 const DAMAGED_RATIO = 0.5;
 const WATER_DRIFT = 6;
 const TILE_OVERLAP = 1.5;
+/** Fill colors (healthy, damaged): green for the player, red for enemies. */
+const HEALTH_COLORS = {
+  player: [0x3fbf4a, 0xe0a21f],
+  enemy: [0xe0392b, 0xb81d12],
+} as const;
 
 interface ShipView {
   readonly root: Container;
   readonly fire: Sprite;
-  readonly bar: HealthBarView | null;
+  readonly bar: HealthBarView;
 }
 
 interface HealthBarView {
   readonly root: Container;
   readonly fill: Graphics;
+  readonly colors: readonly [healthy: number, damaged: number];
   ratio: number;
 }
 
@@ -203,12 +209,12 @@ export class GameRenderer {
         const flicker = 1 + Math.sin(this.time * 18 + ship.id) * 0.12;
         view.fire.scale.set(flicker * 0.9, flicker);
       }
-      if (view.bar) this.updateHealthBar(view.bar, ship, ratio);
+      this.updateHealthBar(view.bar, ship, ratio);
     }
     for (const [id, view] of this.ships) {
       if (seen.has(id)) continue;
       view.root.destroy({ children: true });
-      view.bar?.root.destroy({ children: true });
+      view.bar.root.destroy({ children: true });
       this.ships.delete(id);
     }
   }
@@ -225,7 +231,7 @@ export class GameRenderer {
     root.addChild(hull, fire);
     this.shipLayer.addChild(root);
 
-    const bar = ship.kind === 'player' ? null : this.createHealthBar();
+    const bar = this.createHealthBar(HEALTH_COLORS[ship.kind === 'player' ? 'player' : 'enemy']);
     return { root, fire, bar };
   }
 
@@ -233,7 +239,7 @@ export class GameRenderer {
     return (this.shipRadii[kind] * SHIP_SPRITE_SCALE) / SHIP_SPRITE_WIDTH;
   }
 
-  private createHealthBar(): HealthBarView {
+  private createHealthBar(colors: HealthBarView['colors']): HealthBarView {
     const root = new Container();
     const frame = new Sprite(this.textures.enemyHealthFrame);
     const scale = HEALTH_BAR_WIDTH / frame.texture.width;
@@ -242,7 +248,7 @@ export class GameRenderer {
     root.addChild(frame, fill);
     root.pivot.set(HEALTH_BAR_WIDTH / 2, 0);
     this.overlayLayer.addChild(root);
-    return { root, fill, ratio: -1 };
+    return { root, fill, colors, ratio: -1 };
   }
 
   private updateHealthBar(bar: HealthBarView, ship: Ship, ratio: number): void {
@@ -255,7 +261,7 @@ export class GameRenderer {
     if (ratio <= 0) return;
     bar.fill
       .roundRect(x * scale, y * scale, w * scale * ratio, h * scale, (h * scale) / 2)
-      .fill(ratio > DAMAGED_RATIO ? 0xe0392b : 0xb81d12)
+      .fill(ratio > DAMAGED_RATIO ? bar.colors[0] : bar.colors[1])
       .roundRect(
         x * scale + 2,
         y * scale + 1,

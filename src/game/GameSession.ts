@@ -64,6 +64,7 @@ export class GameSession {
     this.renderer = renderer;
     this.input.attach();
     document.addEventListener('visibilitychange', this.handleVisibility);
+    window.addEventListener('blur', this.handleBlur);
     renderer.app.ticker.add(this.tick);
     this.audio.start();
     this.setPhase('running');
@@ -75,6 +76,7 @@ export class GameSession {
     this.input.detach();
     this.audio.stop();
     document.removeEventListener('visibilitychange', this.handleVisibility);
+    window.removeEventListener('blur', this.handleBlur);
     this.renderer?.destroy();
     this.renderer = null;
     this.listeners.clear();
@@ -141,6 +143,11 @@ export class GameSession {
 
   private readonly handleVisibility = (): void => {
     if (document.hidden) this.pause();
+  };
+
+  /** The window lost focus (another app or window took it): pause like a hidden tab. */
+  private readonly handleBlur = (): void => {
+    this.pause();
   };
 
   private setPhase(phase: SessionPhase): void {
