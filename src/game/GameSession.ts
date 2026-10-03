@@ -1,7 +1,7 @@
 import type { Ticker } from 'pixi.js';
 import { GameAudio } from '../audio/GameAudio.ts';
 import type { MatchConfig } from '../config/matchConfig.ts';
-import { InputController } from './input/InputController.ts';
+import { InputController, type JoystickVector } from './input/InputController.ts';
 import { GameRenderer } from './render/GameRenderer.ts';
 import type { EndReason, SimInput } from './sim/types.ts';
 import { World } from './sim/world.ts';
@@ -103,6 +103,10 @@ export class GameSession {
     if (this.phase === 'running' || !pressed) this.input.setTouch(action, pressed);
   }
 
+  setJoystick(joystick: JoystickVector | null): void {
+    if (this.phase === 'running' || !joystick) this.input.setJoystick(joystick);
+  }
+
   readonly subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -119,7 +123,7 @@ export class GameSession {
       this.accumulator += dt;
       while (this.accumulator >= FIXED_STEP && this.world.status === 'running') {
         this.accumulator -= FIXED_STEP;
-        const events = this.world.step(this.input.snapshot(), FIXED_STEP);
+        const events = this.world.step(this.input.snapshot(this.world.player.angle), FIXED_STEP);
         renderer.handleEvents(events);
         this.audio.handleEvents(events, this.world);
       }

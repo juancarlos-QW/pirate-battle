@@ -76,7 +76,10 @@ export function GameScreen({ onExit, onPlayAgain }: GameScreenProps) {
       <div className="game__arena" ref={hostRef} />
 
       <Hud state={hud} onPause={() => session?.pause()} />
-      <TouchControls onChange={(action, pressed) => session?.setTouch(action, pressed)} />
+      <TouchControls
+        onChange={(action, pressed) => session?.setTouch(action, pressed)}
+        onJoystick={(joystick) => session?.setJoystick(joystick)}
+      />
       <img className="scene__logo" src={LOGO_URL} alt="" width={120} height={60} />
 
       {hud.phase === 'loading' && (

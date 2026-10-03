@@ -27,5 +27,5 @@ export const CONTROL_BINDINGS: readonly ControlBinding[] = [
 ];
 
 export const TOUCH_INSTRUCTIONS =
-  'On touch screens use the buttons on the left to steer and the buttons on the right to fire. ' +
-  'You can hold several buttons at once.';
+  'On touch screens drag the joystick on the left toward where you want to sail and use the ' +
+  'buttons on the right to fire. You can steer and fire at the same time.';

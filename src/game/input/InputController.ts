@@ -1,8 +1,40 @@
 import { CONTROL_BINDINGS, type GameAction } from '../../config/controls.ts';
+import { angleDelta } from '../sim/math.ts';
 import { IDLE_INPUT, type SimInput } from '../sim/types.ts';
 
 type HeldAction = keyof SimInput;
 type Source = 'keyboard' | 'touch';
+
+/** Direction the joystick points to (radians, same convention as ship headings) and how far. */
+export interface JoystickVector {
+  readonly angle: number;
+  /** 0 at the center, 1 at the rim. */
+  readonly strength: number;
+}
+
+/** Below this strength the joystick is considered centered. */
+const JOYSTICK_DEAD_ZONE = 0.25;
+/** Heading error tolerated before turning. Larger than one step of rotation, so it never jitters. */
+const JOYSTICK_AIM_TOLERANCE = 0.1;
+
+/**
+ * Converts a joystick vector into held actions for a ship facing `heading`:
+ * sail forward and turn the shortest way toward the joystick direction.
+ */
+export function joystickToInput(
+  heading: number,
+  joystick: JoystickVector | null,
+): Pick<SimInput, 'forward' | 'turnLeft' | 'turnRight'> {
+  if (!joystick || joystick.strength < JOYSTICK_DEAD_ZONE) {
+    return { forward: false, turnLeft: false, turnRight: false };
+  }
+  const delta = angleDelta(heading, joystick.angle);
+  return {
+    forward: true,
+    turnLeft: delta < -JOYSTICK_AIM_TOLERANCE,
+    turnRight: delta > JOYSTICK_AIM_TOLERANCE,
+  };
+}
 
 const ACTION_BY_CODE = new Map<string, GameAction>(
   CONTROL_BINDINGS.flatMap((binding) =>
@@ -20,6 +52,7 @@ export class InputController {
     keyboard: new Set(),
     touch: new Set(),
   };
+  private joystick: JoystickVector | null = null;
   private readonly onPause: () => void;
   private attached = false;
 
@@ -50,11 +83,21 @@ export class InputController {
     else this.held.touch.delete(action);
   }
 
-  snapshot(): SimInput {
+  /** Called by the on-screen joystick; `null` when released. */
+  setJoystick(joystick: JoystickVector | null): void {
+    this.joystick = joystick;
+  }
+
+  /** Held actions for this step. `heading` is the player's angle, used to steer with the joystick. */
+  snapshot(heading: number): SimInput {
+    const steering = joystickToInput(heading, this.joystick);
     const input = { ...IDLE_INPUT };
     for (const action of Object.keys(input) as HeldAction[]) {
       input[action] = this.held.keyboard.has(action) || this.held.touch.has(action);
     }
+    input.forward ||= steering.forward;
+    input.turnLeft ||= steering.turnLeft;
+    input.turnRight ||= steering.turnRight;
     return input;
   }
 
@@ -62,6 +105,7 @@ export class InputController {
   readonly clear = (): void => {
     this.held.keyboard.clear();
     this.held.touch.clear();
+    this.joystick = null;
   };
 
   private readonly handleKeyDown = (event: KeyboardEvent): void => {

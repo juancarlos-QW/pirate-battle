@@ -881,22 +881,55 @@ kbd {
   touch-action: none;
 }
 
-.touch-controls__btn--turnLeft,
-.touch-controls__btn--turnRight,
 .touch-controls__btn--fireLeft,
 .touch-controls__btn--fireRight {
   grid-row: 2;
 }
 
-.touch-controls__btn--forward,
 .touch-controls__btn--fireFront {
   grid-row: 1;
   grid-column: 2;
 }
 
-.touch-controls__btn--turnRight,
 .touch-controls__btn--fireRight {
   grid-column: 3;
+}
+
+/* Virtual joystick: the base is a large round frame, the knob a round button following the finger. */
+.touch-joystick {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: url('/assets/png/retina/ui/controls/button_round_normal.png') center / 100% 100%
+    no-repeat;
+  opacity: 0.85;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.touch-joystick--active {
+  opacity: 1;
+}
+
+.touch-joystick__knob {
+  position: absolute;
+  top: 28%;
+  left: 28%;
+  width: 44%;
+  height: 44%;
+  border-radius: 50%;
+  background: url('/assets/png/retina/ui/controls/button_round_hover.png') center / 100% 100%
+    no-repeat;
+  pointer-events: none;
+  transition: transform 120ms ease-out;
+}
+
+.touch-joystick--active .touch-joystick__knob {
+  background-image: url('/assets/png/retina/ui/controls/button_round_pressed.png');
+  /* Follow the finger without lag; only the return to the center is animated. */
+  transition: none;
 }
 
 /* ---------- Responsive ---------- */
@@ -936,6 +969,11 @@ kbd {
   .touch-controls__pad {
     grid-template-columns: repeat(3, 56px);
     grid-template-rows: 56px 56px;
+  }
+
+  .touch-joystick {
+    width: 120px;
+    height: 120px;
   }
 
   .touch-controls__btn {
