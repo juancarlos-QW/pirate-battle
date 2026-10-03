@@ -868,17 +868,22 @@ kbd {
 
 .touch-controls__pad {
   display: grid;
-  grid-template-columns: repeat(3, 64px);
-  grid-template-rows: 64px 64px;
-  gap: 4px;
+  grid-template-columns: repeat(3, 80px);
+  grid-template-rows: 80px 80px;
+  gap: 6px;
   pointer-events: auto;
 }
 
 .touch-controls__btn {
-  width: 64px;
-  height: 64px;
-  background-size: 64px 64px;
+  width: 80px;
+  height: 80px;
+  background-size: 80px 80px;
   touch-action: none;
+}
+
+.touch-controls__btn img {
+  width: 40px;
+  height: 40px;
 }
 
 .touch-controls__btn--fireLeft,
@@ -967,8 +972,8 @@ kbd {
   }
 
   .touch-controls__pad {
-    grid-template-columns: repeat(3, 56px);
-    grid-template-rows: 56px 56px;
+    grid-template-columns: repeat(3, 70px);
+    grid-template-rows: 70px 70px;
   }
 
   .touch-joystick {
@@ -977,9 +982,14 @@ kbd {
   }
 
   .touch-controls__btn {
-    width: 56px;
-    height: 56px;
-    background-size: 56px 56px;
+    width: 70px;
+    height: 70px;
+    background-size: 70px 70px;
+  }
+
+  .touch-controls__btn img {
+    width: 36px;
+    height: 36px;
   }
 }
 
